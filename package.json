@@ -1,0 +1,40 @@
+{
+  "name": "css-conflict-inspector",
+  "version": "0.1.0",
+  "description": "Find potential conflict in your CSS files - to avoid surprises when used in the context of Micro Frontends.",
+  "main": "lib/index.js",
+  "module": "esm/index.js",
+  "source": "src/index.ts",
+  "typings": "esm/index.d.ts",
+  "scripts": {
+    "build": "npm run build:esm && npm run build:lib",
+    "build:esm": "tsc --module esnext --target esnext --outDir esm",
+    "build:lib": "tsc --module commonjs --target es5 --outDir lib",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FlorianRappl/css-conflict-inspector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FlorianRappl/css-conflict-inspector/issues"
+  },
+  "homepage": "https://github.com/FlorianRappl/css-conflict-inspector#readme",
+  "keywords": [
+    "css",
+    "tool",
+    "microfrontends"
+  ],
+  "author": "Florian Rappl",
+  "license": "MIT",
+  "dependencies": {
+    "lightningcss": "^1.21.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.3.2",
+    "prettier": "^2.8.8",
+    "typescript": "^5.1.6",
+    "vite": "^4.3.9",
+    "vitest": "^0.32.2"
+  }
+}

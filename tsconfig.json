@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "removeComments": false,
+    "jsx": "react",
+    "noLib": false,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "lib": ["es6", "esnext"]
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "lib",
+    "esm"
+  ]
+}
