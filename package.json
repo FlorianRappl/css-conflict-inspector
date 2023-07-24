@@ -1,6 +1,6 @@
 {
   "name": "css-conflict-inspector",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Find potential conflict in your CSS files - to avoid surprises when used in the context of Micro Frontends.",
   "main": "lib/index.js",
   "module": "esm/index.js",

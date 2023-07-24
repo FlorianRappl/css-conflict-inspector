@@ -29,8 +29,71 @@ test('Analyze CSS with Good Selector as Hash', () => {
   assert.equal(result.score, 100);
 });
 
-test.skip('Analyze CSS with Good Selector as Hash Inside Bad Selector', () => {
+test('Analyze CSS with Good Selector as Hash Inside Bad Selector', () => {
   const result = analyzeCss(`p.bUQMLr { color: black; }`);
+  
+  assert.equal(result.conflicts.length, 0);
+  assert.equal(result.score, 100);
+});
+
+test('Analyze CSS with Good Selector as Hash Inside Bad Selector Child', () => {
+  const result = analyzeCss(`* > .bUQMLr { color: black; }`);
+  
+  assert.equal(result.conflicts.length, 0);
+  assert.equal(result.score, 100);
+});
+
+test('Analyze CSS with Bad Selector Inside Good Selector as Hash Child', () => {
+  const result = analyzeCss(`.bUQMLr > * { color: black; }`);
+  
+  assert.equal(result.conflicts.length, 0);
+  assert.equal(result.score, 100);
+});
+
+test('Analyze CSS with Good Selector as Hash Inside Bad Selector Descendent', () => {
+  const result = analyzeCss(`p .bUQMLr { color: black; }`);
+  
+  assert.equal(result.conflicts.length, 0);
+  assert.equal(result.score, 100);
+});
+
+test('Analyze CSS with :hover Selector of Tag', () => {
+  const result = analyzeCss(`p:hover { color: black; }`);
+  
+  assert.equal(result.conflicts.length, 1);
+  assert.equal(result.score, 80);
+});
+
+test('Analyze CSS with :hover Selector of Simple Class', () => {
+  const result = analyzeCss(`.foo:hover { color: black; }`);
+  
+  assert.equal(result.conflicts.length, 1);
+  assert.equal(result.score, 95);
+});
+
+test('Analyze CSS with :hover Selector of Attribute', () => {
+  const result = analyzeCss(`[data-foo]:hover { color: black; }`);
+  
+  assert.equal(result.conflicts.length, 1);
+  assert.equal(result.score, 90);
+});
+
+test('Analyze CSS with :hover Selector of Attribute in Hashed class', () => {
+  const result = analyzeCss(`.bQmQmAbCX[data-foo]:hover { color: black; }`);
+  
+  assert.equal(result.conflicts.length, 0);
+  assert.equal(result.score, 100);
+});
+
+test('Analyze CSS with :not Selector of Hashed class', () => {
+  const result = analyzeCss(`.bQmQmAbCX:not(foo) { color: black; }`);
+  
+  assert.equal(result.conflicts.length, 0);
+  assert.equal(result.score, 100);
+});
+
+test('Analyze CSS with :has Selector of Hashed class', () => {
+  const result = analyzeCss(`.bQmQmAbCX:has(foo) { color: black; }`);
   
   assert.equal(result.conflicts.length, 0);
   assert.equal(result.score, 100);

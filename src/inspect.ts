@@ -19,22 +19,27 @@ export function inspect(
   options: CssInspectorOptions,
   scale = 1,
 ) {
-  const startIndex = selectors.findLastIndex(m => m.type === 'combinator');
+  let violation: CssConflict = undefined;
 
-  selectors.slice(startIndex + 1).forEach((sel) => {
+  selectors.forEach((sel) => {
     switch (sel.type) {
       case 'combinator': {
-        // e.g., ">"
         switch (sel.value) {
           case 'descendant':
+            // e.g., " "
             scale *= 0.4;
             break;
           case 'child':
+            // e.g., ">"
             scale *= 0.2;
             break;
           case 'next-sibling':
+            // e.g., "+"
+            scale *= 0.08;
+            break;
           case 'later-sibling':
-            scale *= 0.1;
+            // e.g., "~"
+            scale *= 0.16;
             break;
         }
         break;
@@ -44,10 +49,12 @@ export function inspect(
         const penalty = getPenalty(options, 'universalPenalty', 50) * scale;
 
         if (penalty) {
-          violations.push({
+          violation = {
             message: 'Detected use of an universal selector ("*")',
             penalty,
-          });
+          };
+        } else {
+          violation = undefined;
         }
 
         break;
@@ -59,15 +66,17 @@ export function inspect(
         const isCustomElement = sel.name.includes('-');
 
         if (isCustomElement && customElementPenalty) {
-          violations.push({
+          violation = {
             message: `Detected use of a type selector (custom element "${sel.name}")`,
             penalty: customElementPenalty,
-          });
+          };
         } else if (!isCustomElement && elementPenalty) {
-          violations.push({
+          violation = {
             message: `Detected use of a type selector (element "${sel.name}")`,
             penalty: elementPenalty,
-          });
+          };
+        } else {
+          violation = undefined;
         }
 
         break;
@@ -83,23 +92,25 @@ export function inspect(
         if (isHashed) {
           // e.g., ".bUQMLr"
           scale = 0;
+          violation = undefined;
         } else if (numHyphens < 1 && sel.name.length < 8 && simplePenalty) {
-          violations.push({
+          violation = {
             message: `Detected use of a simple class selector ("${sel.name}")`,
             penalty: simplePenalty,
-          });
+          };
         } else if (numHyphens < 1 && sel.name.length < 20 && simplerPenalty) {
-          violations.push({
+          violation = {
             message: `Detected use of an almost simple class selector ("${sel.name}")`,
             penalty: simplerPenalty,
-          });
+          };
         } else if (numHyphens < 2 && sel.name.length < 10 && simplestPenalty) {
-          violations.push({
+          violation = {
             message: `Detected use of an almost simple class selector ("${sel.name}")`,
             penalty: simplestPenalty,
-          });
+          };
         } else {
           scale = 0;
+          violation = undefined;
         }
 
         break;
@@ -109,39 +120,40 @@ export function inspect(
         const penalty = getPenalty(options, 'idPenalty', 0) * scale;
 
         if (penalty) {
-          violations.push({
+          violation = {
             message: `Detected use of an ID selector ("${sel.name}")`,
             penalty,
-          });
+          };
+        } else {
+          violation = undefined;
         }
 
         break;
       }
       case 'attribute': {
         // e.g., "hidden"
-        const penalty = getPenalty(options, 'attributePenalty', 0) * scale;
+        const penalty = getPenalty(options, 'attributePenalty', 10) * scale;
 
         if (penalty) {
-          violations.push({
+          violation = {
             message: `Detected use of an attribute selector ("${sel.name}")`,
             penalty,
-          });
+          };
+        } else {
+          violation = undefined;
         }
 
         break;
       }
       case 'pseudo-class': {
         // e.g., ":where"
-        if (sel.kind === 'not') {
-          inspect(sel.selectors, violations, options, 0.5);
-        } else if (sel.kind === 'where') {
-          inspect(sel.selectors, violations, options, 0.5);
-        } else if (sel.kind === 'has') {
-          inspect(sel.selectors, violations, options, 0.2);
-        } else if (sel.kind === 'is') {
-          inspect(sel.selectors, violations, options, 0.1);
+        if (sel.kind === 'not' || sel.kind === 'has') {
+          // Does not change the outcome as we just don't know what else can be selected (like anything)
+        } else if (sel.kind === 'where' || sel.kind === 'is') {
+          violation = undefined;
+          inspect(sel.selectors, violations, options, scale * 0.5);
         } else {
-          //
+          // These don't matter for the outcome
         }
 
         break;
@@ -160,4 +172,8 @@ export function inspect(
       }
     }
   });
+
+  if (violation) {
+    violations.push(violation);
+  }
 }
