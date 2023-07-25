@@ -13,6 +13,46 @@ function getPenalty(options: CssInspectorOptions, name: keyof CssInspectorOption
   return defaultValue;
 }
 
+function getDefaultTypePenalty(type: string) {
+  switch (type) {
+    case 'body':
+      return 80;
+    case 'img':
+    case 'input':
+    case 'a':
+    case 'button':
+      return 70;
+    case 'textarea':
+      return 60;
+    case 'h1':
+    case 'h2':
+    case 'h3':
+    case 'h4':
+    case 'h5':
+    case 'h6':
+    case 'figure':
+    case 'article':
+    case 'section':
+      return 30;
+    case 'span':
+    case 'div':
+    case 'td':
+    case 'th':
+    case 'tr':
+      return 50;
+    case 'p':
+    case 'ol':
+    case 'ul':
+    case 'li':
+    case 'table':
+    case 'thead':
+    case 'tfoot':
+      return 40;
+    default:
+      return 20;
+  }
+}
+
 export function inspect(
   selectors: Selector | Array<Selector>,
   violations: Array<CssConflict>,
@@ -46,7 +86,7 @@ export function inspect(
       }
       case 'universal': {
         // e.g., "*"
-        const penalty = getPenalty(options, 'universalPenalty', 50) * scale;
+        const penalty = getPenalty(options, 'universalPenalty', 90) * scale;
 
         if (penalty) {
           violation = {
@@ -61,7 +101,8 @@ export function inspect(
       }
       case 'type': {
         // e.g., "p"
-        const elementPenalty = getPenalty(options, 'elementPenalty', 20) * scale;
+        const defaultPenalty = getDefaultTypePenalty(sel.name);
+        const elementPenalty = getPenalty(options, 'elementPenalty', defaultPenalty) * scale;
         const customElementPenalty = getPenalty(options, 'customElementPenalty', 10) * scale;
         const isCustomElement = sel.name.includes('-');
 

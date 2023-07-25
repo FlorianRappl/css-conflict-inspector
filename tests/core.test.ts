@@ -5,14 +5,14 @@ test('Analyze CSS with Universal Selector', () => {
   const result = analyzeCss(`* { color: black; }`);
   
   assert.equal(result.conflicts.length, 1);
-  assert.equal(result.score, 50);
+  assert.equal(result.score, 10);
 });
 
 test('Analyze CSS with Element Selector', () => {
   const result = analyzeCss(`p { color: black; }`);
   
   assert.equal(result.conflicts.length, 1);
-  assert.equal(result.score, 80);
+  assert.equal(result.score, 60);
 });
 
 test('Analyze CSS with Good Selector from Styled Components', () => {
@@ -61,7 +61,7 @@ test('Analyze CSS with :hover Selector of Tag', () => {
   const result = analyzeCss(`p:hover { color: black; }`);
   
   assert.equal(result.conflicts.length, 1);
-  assert.equal(result.score, 80);
+  assert.equal(result.score, 60);
 });
 
 test('Analyze CSS with :hover Selector of Simple Class', () => {
